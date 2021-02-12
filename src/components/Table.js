@@ -1,5 +1,8 @@
+//Library Import
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
+//Mui Import
 import {
     makeStyles,
     Table,
@@ -12,15 +15,18 @@ import {
     IconButton,
     Modal,
     Card,
-    Container,
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Pagination from '@material-ui/lab/Pagination';
 
+//Local Import
 import db from '../firebase';
 import Form from './Form';
+import { fetchContacts } from '../store/actions/contactsAction';
+import { paginate } from '../store/actions/paginationAction';
 
+//Mui Styles
 const useStyles = makeStyles({
     modal: {
         width: '100vw',
@@ -35,37 +41,59 @@ const useStyles = makeStyles({
 })
 
 const MyTable = () => {
+    //constants
+    const TableHeadings = ['ID', 'Name', 'Number', 'Action'];
     const classes = useStyles();
-    const [contacts, setContacts] = useState()
     const [modal, setModal] = useState(false)
 
+    //Redux-hooks
+    const dispatch = useDispatch()
+    const contacts = useSelector(state => state.contactsReducer.contacts)
+    const currentPage = useSelector(state => state.pageReducer.currentPage)
+    const start = useSelector(state => state.pageReducer.start)
+    const end = useSelector(state => state.pageReducer.end)
+
+    // console.log(start, end, contacts?.length) Debugging
+
     useEffect(() => {
-        db.collection('contacts').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-            setContacts([...snapshot.docs.map(doc => ({ id: doc.id, contact: doc.data() }))])
-        })
-    }, [])
+        //fetch data onPageLoad, onChange, update, delete (firebase)
+        dispatch(fetchContacts())
+    }, [dispatch])
 
     return (
         <>
-            <Modal open={modal !== false ? true : false} className={classes.modal}>
+            {/* Modal */}
+            <Modal
+                open={modal !== false ? true : false}
+                className={classes.modal}
+                onClose={() => setModal(false)}
+            >
                 <Card className={classes.modalCard}>
                     <Form action='update' id={modal} />
                 </Card>
             </Modal>
+            {/* Table */}
             <TableContainer component={Paper} className={classes.tableBody}>
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell align="right">Name</TableCell>
-                            <TableCell align="right">Number</TableCell>
-                            <TableCell align="right">Action</TableCell>
+                            {
+                                TableHeadings.map((head, index) => (
+                                    <TableCell
+                                        align={index > 0 ? 'right' : 'left'}
+                                        key={index}>
+                                        {head}
+                                    </TableCell>
+                                ))
+                            }
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {
+                            // Global store (contacts)
                             contacts?.map((contact, index) => (
-                                <TableRow key={contact.id}>
+                                //pagination on the basis of index and start/end logic
+                                index >= start && index < end && (<TableRow key={contact.id}>
                                     <TableCell component="th" scope="row">{index + 1}</TableCell>
                                     <TableCell align="right">{contact.contact.name}</TableCell>
                                     <TableCell align="right">{contact.contact.number}</TableCell>
@@ -83,12 +111,18 @@ const MyTable = () => {
                                             <DeleteIcon />
                                         </IconButton>
                                     </TableCell>
-                                </TableRow>
+                                </TableRow>)
                             ))
                         }
                     </TableBody>
                 </Table>
-                <Pagination count={10} size="large" color='primary' style={{ margin: '10px 0px' }} />
+                <Pagination
+                    page={currentPage}
+                    onChange={(_, page) => dispatch(paginate(page))}
+                    count={Math.floor(contacts?.length / 5 + (contacts?.length % 5 === 0 ? 0 : 1))}
+                    size="large" color='primary'
+                    style={{ margin: '10px 0px' }}
+                />
             </TableContainer >
         </>
     )

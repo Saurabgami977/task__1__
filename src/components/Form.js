@@ -1,9 +1,14 @@
+//Library Import
 import React, { useState } from 'react';
-
-import { Button, Card, makeStyles, TextField } from '@material-ui/core';
-import db from '../firebase';
 import firebase from 'firebase';
 
+//Mui Imports
+import { Button, Card, makeStyles, TextField, Typography } from '@material-ui/core';
+
+//Local Imports
+import db from '../firebase';
+
+//MUI styles
 const useStyles = makeStyles({
     root: {
         display: 'flex',
@@ -20,12 +25,14 @@ const useStyles = makeStyles({
     }
 })
 
-
+//Props passed from Update Modal checks if is is passed
 const Form = ({ action = 'add', id }) => {
+    //Constants
     const classes = useStyles()
     const [name, setName] = useState('')
     const [number, setNumber] = useState('')
 
+    //SubmitHandler for creating contact 
     const submitHandler = (e, name, number) => {
         e.preventDefault();
         (name && number) ? (
@@ -38,6 +45,7 @@ const Form = ({ action = 'add', id }) => {
         setNumber('')
     }
 
+    //updateHandler only runs if props ID is passed
     const updateHandler = (e, name, number, id) => {
         e.preventDefault();
         (name && number) ? (
@@ -51,6 +59,12 @@ const Form = ({ action = 'add', id }) => {
     }
     return (
         <Card>
+            {/* Shows update in modal for better understanding */}
+            {
+                id ?
+                    <Typography variant="h3" align="center">Update</Typography>
+                    : null
+            }
             <form className={classes.root}>
                 <TextField
                     className={classes.input}
@@ -70,7 +84,11 @@ const Form = ({ action = 'add', id }) => {
                     type="submit"
                     color="primary"
                     variant="contained"
-                    onClick={(e) => action === 'add' ? submitHandler(e, name, number) : updateHandler(e, name, number, id)}
+                    onClick={(e) => action === 'add'
+                        // if props.action === 'update' then goes to updateHandler function
+                        ? submitHandler(e, name, number)
+                        : updateHandler(e, name, number, id)
+                    }
                 >
                     Submit
             </Button>
