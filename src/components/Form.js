@@ -1,5 +1,5 @@
 //Library Import
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import firebase from 'firebase';
 
 //Mui Imports
@@ -31,6 +31,17 @@ const Form = ({ action = 'add', id }) => {
     const classes = useStyles()
     const [name, setName] = useState('')
     const [number, setNumber] = useState('')
+
+    useEffect(() => {
+        db
+            .collection('contacts')
+            .doc(id)
+            .get()
+            .then((res) => (
+                setName(res.data()?.name),
+                setNumber(res.data()?.number)
+            ))
+    }, [id])
 
     //SubmitHandler for creating contact 
     const submitHandler = (e, name, number) => {

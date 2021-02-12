@@ -52,8 +52,12 @@ const MyTable = () => {
     const currentPage = useSelector(state => state.pageReducer.currentPage)
     const start = useSelector(state => state.pageReducer.start)
     const end = useSelector(state => state.pageReducer.end)
+    const filteredData = useSelector(state => state.searchReducer.filteredData)
 
     // console.log(start, end, contacts?.length) Debugging
+
+    // map filtered data if user has started searching otherwise as usual contact
+    const toMap = filteredData ? filteredData : contacts
 
     useEffect(() => {
         //fetch data onPageLoad, onChange, update, delete (firebase)
@@ -91,7 +95,8 @@ const MyTable = () => {
                     <TableBody>
                         {
                             // Global store (contacts)
-                            contacts?.map((contact, index) => (
+
+                            toMap?.map((contact, index) => (
                                 //pagination on the basis of index and start/end logic
                                 index >= start && index < end && (<TableRow key={contact.id}>
                                     <TableCell component="th" scope="row">{index + 1}</TableCell>

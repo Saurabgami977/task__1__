@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { Grid, InputBase, makeStyles, fade } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
+import { useDispatch } from 'react-redux';
+import { filteredSearch } from '../store/actions/searchAction';
 
 
 const useStyles = makeStyles(theme => ({
@@ -52,6 +54,15 @@ const useStyles = makeStyles(theme => ({
 function Appbar() {
 
     const classes = useStyles()
+    const [search, setSearch] = useState('')
+    const dispatch = useDispatch();
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            dispatch(filteredSearch(search))
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [search, dispatch])
+
     return (
         <AppBar position="static" color="primary">
             <Toolbar>
@@ -74,6 +85,8 @@ function Appbar() {
                                     input: classes.inputInput,
                                 }}
                                 inputProps={{ 'aria-label': 'search' }}
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
                     </Grid>
