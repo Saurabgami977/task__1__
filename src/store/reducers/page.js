@@ -14,8 +14,8 @@ const reducer = (state = initialState, action) => {
             return {
                 ...state,
                 currentPage: action.payload,
-                start: (action.payload - 1) * 5,
-                end: action.payload * 5
+                start: (action.payload - 1) * state.perPage,
+                end: action.payload * state.perPage
             }
         default:
             return state;

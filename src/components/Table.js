@@ -96,35 +96,37 @@ const MyTable = () => {
                         {
                             // Global store (contacts)
 
-                            toMap?.map((contact, index) => (
-                                //pagination on the basis of index and start/end logic
-                                index >= start && index < end && (<TableRow key={contact.id}>
-                                    <TableCell component="th" scope="row">{index + 1}</TableCell>
-                                    <TableCell align="right">{contact.contact.name}</TableCell>
-                                    <TableCell align="right">{contact.contact.number}</TableCell>
-                                    <TableCell align="right">
-                                        <IconButton
-                                            onClick={() => setModal(contact.id)}
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                        <IconButton
-                                            onClick={e => {
-                                                db.collection('contacts').doc(contact.id).delete()
-                                            }}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>)
-                            ))
+                            toMap
+                                ?.slice(start, end)
+                                ?.map((contact, index) => (
+                                    //pagination on the basis of index and start/end logic
+                                    (<TableRow key={contact.id}>
+                                        <TableCell component="th" scope="row">{index + 1}</TableCell>
+                                        <TableCell align="right">{contact.contact.name}</TableCell>
+                                        <TableCell align="right">{contact.contact.number}</TableCell>
+                                        <TableCell align="right">
+                                            <IconButton
+                                                onClick={() => setModal(contact.id)}
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
+                                            <IconButton
+                                                onClick={e => {
+                                                    db.collection('contacts').doc(contact.id).delete()
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>)
+                                ))
                         }
                     </TableBody>
                 </Table>
                 <Pagination
                     page={currentPage}
                     onChange={(_, page) => dispatch(paginate(page))}
-                    count={Math.floor(contacts?.length / 5 + (contacts?.length % 5 === 0 ? 0 : 1))}
+                    count={Math.ceil(contacts?.length / 5)}
                     size="large" color='primary'
                     style={{ margin: '10px 0px' }}
                 />
