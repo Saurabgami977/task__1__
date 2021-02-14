@@ -33,7 +33,7 @@ const Form = ({ action = 'add', id }) => {
     const [number, setNumber] = useState('')
 
     useEffect(() => {
-        db
+        id && db
             .collection('contacts')
             .doc(id)
             .get()
